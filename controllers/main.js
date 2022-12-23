@@ -7,7 +7,7 @@ const login = async (req, res) => {
   if (!username || !password) {
     throw new CustomAPIError('Please provide email and password', 400)
   }
-  console.log(username, password)
+  // console.log(username, password)
 
   const id = new Date().getDate()
   //just for example
@@ -25,13 +25,19 @@ const dashboard = async (req, res) => {
   }
 
   const token = authHeader.split(' ')[1]
-  console.log(token)
-  console.log(req.headers)
-  const luckyNumber = Math.floor(Math.random() * 100)
-  res.status(200).json({
-    msg: `Hello, John Doe`,
-    secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
-  })
+  // console.log(token)
+  // console.log(req.headers)
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const luckyNumber = Math.floor(Math.random() * 100)
+    console.log(decoded)
+    res.status(200).json({
+      msg: `Hello, ${decoded.username}`,
+      secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
+    })
+  } catch (error) {
+    throw new CustomAPIError('Not authorized to access this route', 401)
+  }
 }
 
 module.exports = { login, dashboard }
